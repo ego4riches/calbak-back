@@ -15,19 +15,19 @@ public class FriendshipRequest {
     private Long id; // 데이터 ID
 
     @Column(name = "from_user_id", nullable = false, length = 30)
-    private String fromUserId;
+    private String fromUserId; // 요청자 ID
 
     @Column(name = "to_user_id", nullable = false, length = 30)
-    private String toUserId;
+    private String toUserId; // 요청 대상자 ID
 
     @Column(name = "request_message")
-    private String requestMessage;
+    private String requestMessage; // 요청 메시지
 
     @Column(name = "response_message")
-    private String responseMessage;
+    private String responseMessage; // 응답 메시지
 
     @Column(name = "request_status", nullable = false, length = 1)
-    private String requestStatus;
+    private String requestStatus; // 요청 상태
 
     @CreationTimestamp
     @Column(name = "create_dt", nullable = false)
