@@ -7,7 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "schedule_request", schema = "schedule")
+@Table(name = "schedule_request", schema = "public")
 public class ScheduleRequest {
 
     @Id
@@ -17,8 +17,8 @@ public class ScheduleRequest {
     @Column(name = "schedule_id", nullable = false)
     private String scheduleId; // 일정 ID
 
-    @Column(name = "from_user_id", nullable = false, length = 30)
-    private String fromUserId; // 요청자 ID
+//    @Column(name = "from_user_id", nullable = false, length = 30)
+//    private String fromUserId; // 요청자 ID
 
     @Column(name = "to_user_id", nullable = false, length = 30)
     private String toUserId; // 요청 대상자 ID

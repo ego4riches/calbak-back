@@ -7,12 +7,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notification", schema = "notification")
+@Table(name = "notification", schema = "public")
 public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 데이터 ID
+
+    @Column(name = "notification_id", nullable = false, length = 30)
+    private String notificationId; // 알람 ID
 
     @Column(name = "user_id", nullable = false, length = 30)
     private String userId;

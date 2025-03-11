@@ -7,12 +7,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "friendship_request", schema = "friendship")
+@Table(name = "friendship_request", schema = "public")
 public class FriendshipRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 데이터 ID
+
+    @Column(name = "friendship_request_id", nullable = false, length = 30)
+    private String friendshipRequestId; // 친구 요청 ID
 
     @Column(name = "from_user_id", nullable = false, length = 30)
     private String fromUserId; // 요청자 ID
@@ -26,8 +29,8 @@ public class FriendshipRequest {
     @Column(name = "response_message")
     private String responseMessage; // 응답 메시지
 
-    @Column(name = "request_status", nullable = false, length = 1)
-    private String requestStatus; // 요청 상태
+    @Column(name = "status", nullable = false, length = 1)
+    private String status; // 요청 상태
 
     @CreationTimestamp
     @Column(name = "create_dt", nullable = false)

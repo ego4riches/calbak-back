@@ -5,12 +5,15 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comment", schema = "schedule")
+@Table(name = "comment", schema = "public")
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 데이터 ID
+
+    @Column(name = "comment_id", nullable = false, length = 30)
+    private String commentId; // 댓글 ID
 
     @Column(name = "schedule_id", nullable = false)
     private String scheduleId; // 일정 ID
