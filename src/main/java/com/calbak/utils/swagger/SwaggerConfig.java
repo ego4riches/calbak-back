@@ -2,15 +2,13 @@ package com.calbak.utils.swagger;
 
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 @Slf4j
@@ -18,7 +16,6 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-
         return new OpenAPI()
                 .components(new Components())
                 .info(apiInfo());
@@ -26,63 +23,69 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("Springdoc 테스트")
-                .description(
-                             "<pre>" +
-                             "방문자 Portal => VP<br>임직원 Portal => EP<br>어드민 Portal => AP<br><br><br>" +
-                             "Springdoc을 사용한 Swagger UI 테스트<br>" +
-                             "<br>" +
-                             "Paging 설명 : pageable object가 있는 요청은 페이징 처리가 가능<br><br>" +
-                             "{<br>" +
-                             "  \"page\": 0, (선택 페이지, 0부터 시작) <br>" +
-                             "  \"size\": 10, (페이지당 표시 로우 갯수 설정)<br>" +
-                             "  \"sort\": [ (내용 정렬 기준 설정)<br>" +
-                             "    \"id,desc\" (#{컬럼명},#{기준})<br>" +
-                             "  ]<br>" +
-                             "}<br><br>" +
-                             "위와 같을 경우 아래와 같이 설정 됨<br>" +
-                             "1. 0번째 페이지 보여줌<br>" +
-                             "2. 한 페이지당 10개의 로우를 보여줌<br>" +
-                             "3. id 컬럼 내림차순으로 보여줌<br>" +
-                             "<pre>"
-                )
+                .title("캘박사 Swagger")
+                .description("캘박사 API 명세서 (2025.03)")
                 .version("1.0.0");
     }
 
     @Bean
     public OpenApiCustomizer openApiCustomizer() {
-        return openApi -> openApi.setPaths(getSortedPaths(openApi));
+        return openApi -> {
+            // 📌 1️⃣ 컨트롤러 경로(paths) 정렬 (기존 코드 유지)
+            openApi.setPaths(getSortedPaths(openApi));
+
+            // 📌 2️⃣ 태그(tags) 정렬 추가
+            List<Tag> sortedTags = getSortedTags(openApi.getTags());
+            openApi.setTags(sortedTags);
+        };
     }
 
     private Paths getSortedPaths(OpenAPI openApi) {
         Map<String, PathItem> sortedPaths = new LinkedHashMap<>();
         openApi.getPaths().entrySet().stream()
-                .sorted((a, b) -> getIndexFromPathItem(a) - getIndexFromPathItem(b))
+                .sorted(Comparator.comparingInt(this::getIndexFromPathItem))
                 .forEachOrdered(x -> sortedPaths.put(x.getKey(), x.getValue()));
         Paths paths = new Paths();
         paths.putAll(sortedPaths);
         return paths;
     }
 
-    private int getIndexFromPathItem(Map.Entry pathItem) {
+    private int getIndexFromPathItem(Map.Entry<String, PathItem> pathItem) {
+        List<Operation> operations = new ArrayList<>();
+        PathItem value = pathItem.getValue();
+        operations.add(value.getGet());
+        operations.add(value.getPut());
+        operations.add(value.getPost());
+        operations.add(value.getDelete());
+        operations.add(value.getPatch());
 
-        List<Operation> ls = new ArrayList<>();
-        PathItem value = (PathItem) pathItem.getValue();
+        operations = operations.stream().filter(Objects::nonNull).toList();
 
-        ls.add(value.getGet());
-        ls.add(value.getPut());
-        ls.add(value.getPost());
-        ls.add(value.getDelete());
-        ls.add(value.getPatch());
-        ls = ls.stream().filter(v -> v != null).toList();
-
-        if (ls.get(0).getSummary() == null) {
+        if (operations.isEmpty() || operations.get(0).getSummary() == null) {
             return 999;
         }
+
         try {
-            return Integer.parseInt(ls.get(0).getSummary().split("\\.")[0]);
+            return Integer.parseInt(operations.get(0).getSummary().split("\\.")[0]);
         } catch (NumberFormatException e) {
             return 999;
+        }
+    }
+
+    // 📌 3️⃣ 태그 정렬 메서드 추가
+    private List<Tag> getSortedTags(List<Tag> tags) {
+        if (tags == null) return Collections.emptyList();
+
+        return tags.stream()
+                .sorted(Comparator.comparingInt(this::getIndexFromTag))
+                .toList();
+    }
+
+    private int getIndexFromTag(Tag tag) {
+        try {
+            return Integer.parseInt(tag.getName().split("\\.")[0]); // 예: "5. 알림 Controller" → 5 추출
+        } catch (NumberFormatException e) {
+            return 999; // 숫자가 없으면 가장 뒤로 정렬
         }
     }
 }
