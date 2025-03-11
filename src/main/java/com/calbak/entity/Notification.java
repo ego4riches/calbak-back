@@ -7,8 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "alram", schema = "alram")
-public class Alram {
+@Table(name = "notification", schema = "notification")
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +45,11 @@ public class Alram {
 
     @Column(name = "update_user", nullable = false, length = 30)
     private String updateUser; // 데이터 수정자
+
+    @Column(name = "delete_dt")
+    private LocalDateTime deleteDt; // 데이터 삭제 일자
+
+    @Column(name = "delete_user", length = 30)
+    private String deleteUser; // 데이터 삭제자
+
 }
